@@ -23,23 +23,23 @@ class Conv1dCustom(nn.Conv1d):
         dtype=None,
     ) -> None:
         super().__init__(
-            in_channels= in_channels,
-            out_channels= out_channels,
-            kernel_size= kernel_size,
-            stride= stride,
-            padding= padding,
-            dilation= dilation,
-            groups= groups,
-            bias= bias,
-            padding_mode= padding_mode,
-            device= device,
-            dtype= dtype,
+            in_channels=in_channels,
+            out_channels=out_channels,
+            kernel_size=kernel_size,
+            stride=stride,
+            padding=padding,
+            dilation=dilation,
+            groups=groups,
+            bias=bias,
+            padding_mode=padding_mode,
+            device=device,
+            dtype=dtype,
         )
 
     def reset_parameters(self) -> None:
-        torch.nn.init.normal_(self.weight, mean=0, std=math.sqrt(0.02)) #var=0.02--> std=sqrt(0.02)
-
-
+        torch.nn.init.normal_(
+            self.weight, mean=0, std=math.sqrt(0.02)
+        )  # var=0.02--> std=sqrt(0.02)
 
 
 class CausalConv1d(nn.Module):
@@ -53,9 +53,9 @@ class CausalConv1d(nn.Module):
             stride=stride,
             padding=self.padding,
             dilation=dilation,
-            bias=False
+            bias=False,
         )
 
     def forward(self, input):
         output = self.conv(input)
-        return output[:, :, :-self.padding]
+        return output[:, :, : -self.padding]
