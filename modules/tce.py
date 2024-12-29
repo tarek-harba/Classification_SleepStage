@@ -7,7 +7,7 @@ import math
 class TCE(nn.Module):  # Input, X:128,30,80
     # if shhs==False: input_length = 80
     # if shhs==True: input_length = 99
-    def __init__(self, input_n_channels, input_sample_length):
+    def __init__(self, input_n_channels : int, input_sample_length : int):
         super().__init__()
         self._output_n_channels = input_n_channels
         self._output_sample_length = input_sample_length
@@ -92,10 +92,17 @@ class TCE(nn.Module):  # Input, X:128,30,80
         )
 
     def forward(self, X):  # Input, X:128,30,sample_length
-        n_input_channels = list(X.size())[1]
-        sample_length = list(X.size())[-1]
-
+        n_channels = self._output_n_channels
+        sample_length = self._output_sample_length
         ########## Branch 1 ##########
+        output1 = self._branch1(X, n_channels, sample_length)
+        ########## Branch 2 ##########
+        output2 = self._branch2(X, n_channels, sample_length)
+        ################## Converge Branches ##################
+        output = self._marge_branches(output1, output2, n_channels)
+        return output
+
+    def _branch1(self, X : torch.Tensor, n_channels : int, sample_length: int) -> torch.Tensor:
         b1_X1 = self.b1_conv1(X)
         b1_X2 = self.b1_conv2(X)
         b1_X3 = self.b1_conv3(X)
@@ -110,11 +117,12 @@ class TCE(nn.Module):  # Input, X:128,30,80
         b1_att = self.b1_bnorm1(b1_att + X)
         b1_att = torch.flatten(b1_att, start_dim=1)
         output1 = self.b1_linearchain(b1_att)
-        b1_att = torch.unflatten(b1_att, 1, (n_input_channels, sample_length))
-        output1 = torch.unflatten(output1, 1, (n_input_channels, sample_length))
+        b1_att = torch.unflatten(b1_att, 1, (n_channels, sample_length))
+        output1 = torch.unflatten(output1, 1, (n_channels, sample_length))
         output1 = self.b1_bnorm2(b1_att + output1)
+        return output1
 
-        ########## Branch 2 ##########
+    def _branch2(self, X : torch.Tensor, n_channels : int, sample_length: int) -> torch.Tensor:
         b2_X1 = self.b2_conv1(X)
         b2_X2 = self.b2_conv2(X)
         b2_X3 = self.b2_conv3(X)
@@ -136,12 +144,13 @@ class TCE(nn.Module):  # Input, X:128,30,80
 
         b2_att = self.b2_bnorm1(b2_att + X)
         b2_att = torch.flatten(b2_att, start_dim=1)
-        output2 = self.b1_linearchain(b2_att)
-        b2_att = torch.unflatten(b2_att, 1, (n_input_channels, sample_length))
-        output2 = torch.unflatten(output2, 1, (n_input_channels, sample_length))
+        output2 = self.b2_linearchain(b2_att)
+        b2_att = torch.unflatten(b2_att, 1, (n_channels, sample_length))
+        output2 = torch.unflatten(output2, 1, (n_channels, sample_length))
         output2 = self.b2_bnorm2(b2_att + output2)
+        return output2
 
-        ################## Converge Branches ##################
+    def _merge_branches(self, output1 : torch.Tensor, output2 : torch.Tensor) -> torch.Tensor:
         output = torch.cat((output1, output2), 1)
         output = torch.flatten(output, start_dim=1)
         output = self.converge(output)
@@ -149,9 +158,9 @@ class TCE(nn.Module):  # Input, X:128,30,80
         return output
 
     @property
-    def output_n_channels(self):
+    def output_n_channels(self) -> int:
         return self._output_n_channels
 
     @property
-    def output_sample_length(self):
+    def output_sample_length(self) -> int:
         return self._output_sample_length
