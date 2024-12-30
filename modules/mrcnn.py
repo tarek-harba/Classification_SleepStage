@@ -7,11 +7,10 @@ from modules.conv import Conv1dCustom
 class MRCNN(nn.Module):
     def __init__(self, shhs: bool):
         super().__init__()
+        self._output_n_channels = 128
         if shhs is False:
-            self._output_n_channels = 128
             self._output_sample_length = 80
         elif shhs is True:
-            self._output_n_channels = 128
             self._output_sample_length = 99
 
         # all padding, bias given in author's github, NOT in paper!
