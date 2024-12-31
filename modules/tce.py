@@ -1,12 +1,10 @@
 import torch
 import torch.nn as nn
-from modules.conv import Conv1dCustom, CausalConv1d
+from modules.conv import CausalConv1d
 import math
 
 
 class TCE(nn.Module):  # Input, X:128,30,80
-    # if shhs==False: input_length = 80
-    # if shhs==True: input_length = 99
     def __init__(self, input_n_channels : int, input_sample_length : int):
         super().__init__()
         self._output_n_channels = input_n_channels
@@ -99,7 +97,7 @@ class TCE(nn.Module):  # Input, X:128,30,80
         ########## Branch 2 ##########
         output2 = self._branch2(X, n_channels, sample_length)
         ################## Converge Branches ##################
-        output = self._marge_branches(output1, output2, n_channels)
+        output = self._merge_branches(output1, output2)
         return output
 
     def _branch1(self, X : torch.Tensor, n_channels : int, sample_length: int) -> torch.Tensor:
