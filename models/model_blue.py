@@ -2,7 +2,7 @@ import torch.nn as nn
 from modules import afr, mrcnn, tce
 import torch
 
-class ModelOrange(nn.Module):
+class ModelBlue(nn.Module):
     # MRCNN+AFR
     def __init__(self, shhs: bool):
         super().__init__()
