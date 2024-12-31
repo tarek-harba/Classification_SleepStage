@@ -1,4 +1,4 @@
-from Datasets.sleep_dataset import SleepDataset
+from sleep_dataset import SleepDataset
 import numpy as np
 
 # From prepare_physionet and authors' notes in the research paper we know that:
