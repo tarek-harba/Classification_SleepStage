@@ -1,0 +1,22 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pandas = "*"
+torch = "*"
+torchvision = "*"
+torchaudio = "*"
+numpy = "*"
+mne = "*"
+seaborn = "*"
+matplotlib = "*"
+scikit-learn = "*"
+torchmetrics = "*"
+
+[dev-packages]
+black = "*"
+
+[requires]
+python_version = "3.10"
